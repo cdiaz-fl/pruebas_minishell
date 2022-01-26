@@ -3,20 +3,41 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: cdiaz-fl <cdiaz-fl@student.42urduliz.com>  +#+  +:+       +#+        */
+/*   By: ioromero <ioromero@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/01/05 16:16:25 by ioromero          #+#    #+#             */
-/*   Updated: 2022/01/18 13:20:02 by cdiaz-fl         ###   ########.fr       */
+/*   Updated: 2022/01/25 18:30:19 by cdiaz-fl         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-
-void	listen_signals(t_data *data)
+char	**dup_env(char **s)
 {
-	if (!data->prompt)
-		data->prompt = ft_strdup("exit");
+	int		i;
+	int		size;
+	char	**new;
+	int		j;
+
+	size = 0;
+	while (s[size])
+		size++;
+	new = (char **)malloc(sizeof(char *) * (size));
+	new[size - 1] = NULL;
+	i = 0;
+	j = 0;
+	while (i < size)
+	{
+		if (!ft_strncmp(s[i], "OLDPWD", 6))
+		{
+			i++;
+			j++;
+			continue ;
+		}
+		new[i - j] = ft_strdup(s[i]);
+		i++;
+	}
+	return (new);
 }
 
 int	main(int argc, char **argv, char **env)
@@ -26,29 +47,22 @@ int	main(int argc, char **argv, char **env)
 	(void) argc;
 	(void) argv;
 	data = (t_data){.env_paths = ft_split(getenv("PATH"), ':'),
-		.env = ft_2d_dup(env)};
-	//rl_catch_signals = 0;
+		.env = dup_env(env)};
+	// rl_catch_signals = 0;
 	while (1)
 	{
 		data.prompt = readline(BLUE"minishell 👨💻$ "WHITE);
 		listen_signals(&data);
+		add_history(data.prompt);
 		data.cmd_args = split_tokens(data.prompt, "\n\t \v\r\f");
-		count_cmds(&data);
-		while (++data.current_cmd < data.size_args)
+		if (!check_syntax(data.cmd_args, &data))
 		{
-			add_history(data.prompt);
-			is_builtin(&data);
-			if (!data.blt_exec)
-				launch_cmd(&data, -1);
-		//print_2d_array(data.cmd_args);
+			count_cmds(&data);
+			exec_cmds(&data);
 		}
-		if (data.total_cmds > 1)
-			close_all_fds(&data);
-		while (data.system_cmds-- > -1)
-			wait(NULL);  //if (status == -1) error management
-		free_2d_array((void **)data.pfds);
 		free_2d_array((void **)data.cmd_args);
 		free(data.prompt);
+		free(data.redir);
 	}
 	free_mem(&data);
 	return (0);

@@ -6,29 +6,22 @@
 #    By: ioromero <ioromero@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/01/07 11:49:38 by cdiaz-fl          #+#    #+#              #
-#    Updated: 2022/01/15 09:08:00 by cdiaz-fl         ###   ########.fr        #
-#                                                                              #
-# **************************************************************************** #
-
-# **************************************************************************** #
-#                                                                              #
-#                                                         :::      ::::::::    #
-#    Makefile                                           :+:      :+:    :+:    #
-#                                                     +:+ +:+         +:+      #
-#    By: ioromero <ioromero@student.42.fr>          +#+  +:+       +#+         #
-#                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2022/01/07 11:22:21 by ioromero          #+#    #+#              #
-#    Updated: 2022/01/07 11:32:03 by ioromero         ###   ########.fr        #
+#    Updated: 2022/01/25 07:55:11 by cdiaz-fl         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 SRCS	= 	minishell.c			\
+			src/cd.c			\
+			src/env.c			\
 			src/free.c			\
 			src/utils.c			\
+			src/signals.c		\
 			src/builtin_cmd.c	\
 			src/split_tokens.c	\
 			src/pipe.c	\
 			src/system_cmd.c	\
+			src/debug.c	\
+			src/expand.c	\
 
 OBJS	= ${SRCS:.c=.o}
 
@@ -52,38 +45,38 @@ CFLAGS	= -Wall -Werror -Wextra
 
 LIBFT 	=  -C ./libft
 
-READLINE = -lreadline -L /Users/$(USER)/.brew/opt/readline/lib -I/Users/$(USER)/.brew/opt/readline/include
+READLINE = -lreadline -L ~/.brew/opt/readline/lib -I ~/.brew/opt/readline/include# -lreadline -L /Users/$(USER)/.brew/opt/readline/lib -I/Users/$(USER)/.brew/opt/readline/include
 
 all:	
 		@ $(MAKE) -s $(NAME)
-		@ echo "$(GREEN)Compiled ✅$(WHITE)"
+		@ echo "$(GREEN)Compiled	✅$(WHITE)"
 
 $(NAME) :	${OBJS}
 			@ ${MAKE} ${LIBFT}
-			@ echo "$(RED)Compiling... ⏳$(WHITE)"
-			@ $(CC) ${CFLAGS} ${SRCS} ./libft/libft.a ${READLINE} -o $(NAME)
+			@ echo "$(RED)Compiling...	⏳$(WHITE)"
+			@ $(CC) ${CFLAGS} ${OBJS} ./libft/libft.a ${READLINE} -o $(NAME)
 
 s:		
 		@ $(MAKE) -s fsanitize
-		@ echo "$(GREEN)Compiled with fsanitize ✅$(WHITE)"
+		@ echo "$(GREEN)Compiled with fsanitize	✅$(WHITE)"
 
 $(SNAME):	${OBJS}
 			@ ${MAKE} ${LIBFT}
-			@ echo "$(RED)Compiling with fsanitize... ⏳$(WHITE)"
-			@ $(CC) ${CFLAGS} $(SFLAGS) ${SRCS} ./libft/libft.a ${READLINE} -o $(NAME)
+			@ echo "$(RED)Compiling with fsanitize...	⏳$(WHITE)"
+			@ $(CC) ${CFLAGS} $(SFLAGS) ${OBJS} ./libft/libft.a ${READLINE} -o $(NAME)
 			
 clean:
-		@ echo "$(RED)Clean in progress... ⏳$(WHITE)"
+		@ echo "$(RED)Clean in progress...	⏳$(WHITE)"
 		@ $(RM) minishell.dSYM
 		@ $(RM) $(OBJS)
-		@ echo "$(GREEN)Clean done ✅$(WHITE)"
+		@ echo "$(GREEN)Clean done	✅$(WHITE)"
 
 fclean: 
 		@ echo "$(RED)Fclean in progress... ⏳$(WHITE)"
 		@ $(RM) *.dSYM
 		@ $(RM) $(OBJS)
 		@ $(RM) $(NAME)
-		@ echo "$(GREEN)Fclean done ✅$(WHITE)"
+		@ echo "$(GREEN)Fclean done	✅$(WHITE)"
 
 re:		fclean all
 
